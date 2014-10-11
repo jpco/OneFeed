@@ -1,5 +1,5 @@
 <project>
-	<target name="compile">
+	<target name="make">
 		<mkdir dir="bin" />
 		<javac srcdir="src" destdir="bin" classpath="src" />
 	</target>
@@ -8,7 +8,7 @@
 		<delete dir="bin" />
 	</target>
 
-	<target name="run">
+	<target name="run" depends="make">
 		<java classname="OneFeed">
 			<classpath>
 				<pathelement location="bin" />

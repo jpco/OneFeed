@@ -17,7 +17,7 @@ Still nearly completely non-functional and in-development.
  - `FeedEvent`: the feed event a Feed sends to the OneFeed. Currently very basic... it'll expand as the
  implementation gets more sophisticated.
 
-Right now the only type of Feed is a DummyFeed; my first goal will be to make some Feeds I can test (Facebook and Tumblr will probably be first to come).
+Right now the only type of Feed (besides the abstract superclass) is a DummyFeed; my first goal will be to make some Feeds I can test (Facebook and Tumblr will probably be first to come).
 
 ###Bugs:
  - Doesn't really do anything yet.

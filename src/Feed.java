@@ -1,12 +1,21 @@
-abstract public class Feed implements Runnable {
-	OneFeed mgr;
+import java.util.prefs.Preferences;
 
-	public Feed(OneFeed mgr) {
+abstract public class Feed implements Runnable {
+	protected OneFeed mgr;
+	protected Preferences prefs;
+
+	public Feed(OneFeed mgr, Preferences pref) {
 		this.mgr = mgr;
+		prefs = pref;
 	}
 
-	public void sendFeedEvent(String evts) {
+	final public void sendFeedEvent(String evts) {
 		mgr.getFeedEvent(new FeedEvent(this, evts));
 	}
+
+	abstract public void kill();
+
+	abstract public String getName();
+	abstract public String getSName();
 }
 

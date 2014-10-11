@@ -1,21 +1,30 @@
-public class DummyFeed extends Feed {
-	String dstring;
+import java.util.prefs.Preferences;
 
-	public DummyFeed(OneFeed mgr) {
-		super(mgr);
-		dstring = "This is a dummy feed!";
-	}
-	public DummyFeed(OneFeed mgr, String dstr) {
-		super(mgr);
-		dstring = dstr;
+public class DummyFeed extends Feed {
+	private boolean run = true;
+
+	public DummyFeed(OneFeed mgr, Preferences pref) {
+		super(mgr, pref);
+		prefs.put("msg", "This is a DummyFeed!");
 	}
 
 	public void run() {
-		while(true) {
-			sendFeedEvent(dstring);
+		while(run) {
+			sendFeedEvent(prefs.get("msg", "default message from dummy"));
 			try {
 				Thread.sleep(100);
 			} catch (Exception ex) { }
 		}
+	}
+
+	public void kill() {
+		run = false;
+	}
+	
+	public String getName() {
+		return "Dummy";
+	}
+	public String getSName() {
+		return "Dm";
 	}
 }
