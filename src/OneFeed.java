@@ -22,12 +22,14 @@ public class OneFeed {
 		}
     }
 	private void init() {
-		System.out.println("Starting OneFeed");
+        frontend = new OneFeedFrontendCli(this);
+        frontend.init();
+        frontend.log("Starting OneFeed");
 
 		feeds = new HashSet<Feed>();
 		rfeeds = Collections.unmodifiableSet(feeds);
 		elist = new LinkedList<FeedEvent>();
-		
+
 		// load preferences
 		prefs = Preferences.userRoot();
 
@@ -37,12 +39,11 @@ public class OneFeed {
 				try {
 					feeds.add(makeFeedFromString(feedName));
 				} catch (Exception ex) {
-					System.out.println("Couldn't load feed "+feedName);
-					System.out.println(ex);
+                    frontend.error(ex, "Couldn't load feed "+feedName);
 				}
 			}
 		} catch (BackingStoreException bse) {
-			System.out.println("Could not load preferences.");
+			frontend.error("Could not load preferences.");
 		}
 
 		// start feeds!
@@ -54,15 +55,15 @@ public class OneFeed {
 		// set up shutdown process
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
 			public void run() {
-				System.out.println("Running shutdown hook");
-				
+                frontend.log("Running shutdown hook");
+
 				for(Feed feed : rfeeds) {
 					feed.kill();
 				}
 				try {
 					prefs.flush();
 				} catch (BackingStoreException bse) {
-					System.out.println("Couldn't save preferences.");
+					frontend.error("Couldn't save preferences.");
 				}
 			}
 		}));
@@ -72,7 +73,7 @@ public class OneFeed {
 		prefs = Preferences.userRoot();
 		prefs.node("/"+nFeed[1]);
 	}
-	
+
 	// I hate this entire method, holy cow
 	private Feed makeFeedFromString(String name)
 			throws ClassNotFoundException, NoSuchMethodException,
@@ -91,9 +92,10 @@ public class OneFeed {
 		for(Feed feed : rfeeds) {
 			(new Thread(feed)).start();
 		}
+        frontend.updateFeedset(rfeeds);
 	}
 
 	public void getFeedEvent(FeedEvent fe) {
-		System.out.println(fe.getSource().getName() + ": " + fe.getString());
+		frontend.getFeedEvent(fe);
 	}
 }

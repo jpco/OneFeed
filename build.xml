@@ -1,7 +1,7 @@
 <project>
 	<target name="make">
 		<mkdir dir="bin" />
-		<javac srcdir="src" destdir="bin" classpath="src" />
+		<javac srcdir="src" destdir="bin" classpath="src" includeantruntime="false"/>
 	</target>
 
 	<target name="clean">
