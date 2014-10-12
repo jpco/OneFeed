@@ -1,4 +1,6 @@
-<project>
+<project name="OneFeed" default="run">
+	<property name="feed" value="DummyFeed" />
+
 	<target name="make">
 		<mkdir dir="bin" />
 		<javac srcdir="src" destdir="bin" classpath="src" includeantruntime="false"/>
@@ -13,6 +15,16 @@
 			<classpath>
 				<pathelement location="bin" />
 			</classpath>
+		</java>
+	</target>
+
+	<target name="addfeed" depends="make">
+		<java classname="OneFeed">
+			<classpath>
+				<pathelement location="bin" />
+			</classpath>
+			<arg value="addfeed" />
+			<arg value="${feed}" />
 		</java>
 	</target>
 </project>

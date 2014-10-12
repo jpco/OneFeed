@@ -31,13 +31,17 @@ public class OneFeed {
 		elist = new LinkedList<FeedEvent>();
 
 		// load preferences
-		prefs = Preferences.userRoot();
+		prefs = Preferences.userRoot().node("OneFeed");
 
 		// create feeds based on preferences
 		try {
 			for(String feedName : prefs.childrenNames()) {
 				try {
 					feeds.add(makeFeedFromString(feedName));
+                    frontend.log("Added feed "+feedName);
+                } catch (ClassNotFoundException ex) {
+                    frontend.error(ex, "No such feed "+feedName);
+                    prefs.node(feedName).removeNode();
 				} catch (Exception ex) {
                     frontend.error(ex, "Couldn't load feed "+feedName);
 				}
@@ -70,8 +74,8 @@ public class OneFeed {
 	}
 
 	private void addFeed(String[] nFeed) {
-		prefs = Preferences.userRoot();
-		prefs.node("/"+nFeed[1]);
+		prefs = Preferences.userRoot().node("OneFeed");
+		prefs.node(nFeed[1]);
 	}
 
 	// I hate this entire method, holy cow
