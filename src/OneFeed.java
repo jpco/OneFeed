@@ -64,7 +64,12 @@ public class OneFeed {
 	}
 
 	private void addFeed(String nFeed) {
-		prefs.node(nFeed);
+		Preferences fPref = prefs.node(nFeed);
+		try {
+			Class.forName(nFeed).getDeclaredMethod("add", Preferences.class).invoke(null, fPref);
+		} catch (Exception ex) {
+			frontend.error(ex, "Could not perform internal feed initialization");
+		}
 	}
 	private void rmFeed(String dFeed) {
 		try {

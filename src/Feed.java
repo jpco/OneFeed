@@ -17,5 +17,6 @@ abstract public class Feed implements Runnable {
 
 	abstract public String getName();
 	abstract public String getSName();
+	static public void add(){ }
 }
 
