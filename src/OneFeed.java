@@ -16,7 +16,13 @@ public class OneFeed {
 
     public static void main(String[] args) {
 		if(args.length == 2 && args[0].equals("addfeed")) {
-			new OneFeed().addFeed(args);
+			OneFeed of = new OneFeed();
+			of.prefs = Preferences.userRoot().node("OneFeed");
+			of.addFeed(args[1]);
+		} else if(args.length == 2 && args[0].equals("rmfeed")) {
+			OneFeed of = new OneFeed();
+			of.prefs = Preferences.userRoot().node("OneFeed");
+			of.rmFeed(args[1]);
 		} else {
 			new OneFeed().init();
 		}
@@ -32,23 +38,7 @@ public class OneFeed {
 
 		// load preferences
 		prefs = Preferences.userRoot().node("OneFeed");
-
-		// create feeds based on preferences
-		try {
-			for(String feedName : prefs.childrenNames()) {
-				try {
-					feeds.add(makeFeedFromString(feedName));
-                    frontend.log("Added feed "+feedName);
-                } catch (ClassNotFoundException ex) {
-                    frontend.error(ex, "No such feed "+feedName);
-                    prefs.node(feedName).removeNode();
-				} catch (Exception ex) {
-                    frontend.error(ex, "Couldn't load feed "+feedName);
-				}
-			}
-		} catch (BackingStoreException bse) {
-			frontend.error("Could not load preferences.");
-		}
+		loadFeedsFromPrefs();
 
 		// start feeds!
 		rfeeds = Collections.unmodifiableSet(feeds);
@@ -73,9 +63,16 @@ public class OneFeed {
 		}));
 	}
 
-	private void addFeed(String[] nFeed) {
-		prefs = Preferences.userRoot().node("OneFeed");
-		prefs.node(nFeed[1]);
+	private void addFeed(String nFeed) {
+		prefs.node(nFeed);
+	}
+	private void rmFeed(String dFeed) {
+		try {
+			Preferences kNode = prefs.node(dFeed);
+			kNode.removeNode();
+		} catch(BackingStoreException ex) {
+			frontend.error("Could not remove feed "+dFeed);
+		}
 	}
 
 	// I hate this entire method, holy cow
@@ -85,18 +82,46 @@ public class OneFeed {
 			InvocationTargetException {
 		return (Feed)((Class.forName(name))
 				.getConstructor(OneFeed.class, Preferences.class))
-				.newInstance(this, prefs.node("/"+name));
+				.newInstance(this, prefs.node(name));
 	}
 
 	private void reloadFeeds() {
 		for(Feed feed : rfeeds) {
-			feed.kill();
+			if(feed != null) feed.kill();
 		}
+		
+		try {
+			if(feeds.size() != prefs.childrenNames().length) {
+				loadFeedsFromPrefs();
+			}
+		} catch (BackingStoreException ex) {
+			frontend.error(ex, "Could not access preferences");
+		}
+		
 		rfeeds = Collections.unmodifiableSet(feeds);
 		for(Feed feed : rfeeds) {
 			(new Thread(feed)).start();
 		}
         frontend.updateFeedset(rfeeds);
+	}
+	
+	private void loadFeedsFromPrefs() {
+		feeds = new HashSet<Feed>();
+		try {
+			for(String feedName : prefs.childrenNames()) {
+				try {
+					feeds.add(makeFeedFromString(feedName));
+                    frontend.log("Added feed "+feedName);
+                } catch (ClassNotFoundException ex) {
+                    frontend.error(ex, "No such feed "+feedName);
+                    prefs.node(feedName).removeNode();
+				} catch (Exception ex) {
+                    frontend.error(ex, "Couldn't load feed "+feedName);
+				}
+			}
+		} catch (BackingStoreException bse) {
+			frontend.error("Could not load preferences.");
+		}
 	}
 
 	public void getFeedEvent(FeedEvent fe) {
