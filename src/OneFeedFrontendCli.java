@@ -1,3 +1,4 @@
+import java.io.Console;
 import java.util.Calendar;
 import java.util.Set;
 
@@ -28,6 +29,15 @@ public class OneFeedFrontendCli extends OneFeedFrontend {
     public void getFeedEvent(FeedEvent fe) {
         System.out.println(getTime()+"EVENT: "+fe.getSource().getSName()
                 +": "+fe.getString());
+    }
+    
+    public String[] prompt(String[] prompts) {
+    	String[] outs = prompts;
+    	Console c = System.console();
+    	for(int i = 0; i<prompts.length; i++) {
+    		outs[i] = c.readLine(prompts[i]);
+    	}
+    	return outs;
     }
 
     private String getTime() {

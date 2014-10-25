@@ -27,7 +27,7 @@ public class DummyFeed extends Feed {
 	public String getSName() {
 		return "Dm";
 	}
-	public static void add(Preferences p) {
+	public static void add(OneFeed m, Preferences p) {
 		System.out.println("dummyfeed added");
 	}
 }

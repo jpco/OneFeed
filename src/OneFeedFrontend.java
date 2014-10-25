@@ -15,4 +15,5 @@ abstract public class OneFeedFrontend {
 	abstract public void log(String str);
 	abstract public void updateFeedset(Set<Feed> feedset);
 	abstract public void getFeedEvent(FeedEvent fe);
+	abstract public String[] prompt(String[] prompts);
 }

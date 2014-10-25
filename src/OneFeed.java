@@ -17,10 +17,12 @@ public class OneFeed {
     public static void main(String[] args) {
 		if(args.length == 2 && args[0].equals("addfeed")) {
 			OneFeed of = new OneFeed();
+			of.frontend = new OneFeedFrontendCli(of);
 			of.prefs = Preferences.userRoot().node("OneFeed");
 			of.addFeed(args[1]);
 		} else if(args.length == 2 && args[0].equals("rmfeed")) {
 			OneFeed of = new OneFeed();
+			of.frontend = new OneFeedFrontendCli(of);
 			of.prefs = Preferences.userRoot().node("OneFeed");
 			of.rmFeed(args[1]);
 		} else {
@@ -66,7 +68,7 @@ public class OneFeed {
 	private void addFeed(String nFeed) {
 		Preferences fPref = prefs.node(nFeed);
 		try {
-			Class.forName(nFeed).getDeclaredMethod("add", Preferences.class).invoke(null, fPref);
+			Class.forName(nFeed).getDeclaredMethod("add", OneFeed.class, Preferences.class).invoke(null, this, fPref);
 		} catch (Exception ex) {
 			frontend.error(ex, "Could not perform internal feed initialization");
 		}
@@ -131,5 +133,9 @@ public class OneFeed {
 
 	public void getFeedEvent(FeedEvent fe) {
 		frontend.getFeedEvent(fe);
+	}
+	
+	public String encrypt(String in) {
+		return in;
 	}
 }
