@@ -28,6 +28,8 @@ public class TwitterFeed extends Feed implements Runnable {
 	private OAuthService oas;
 	private Token accessToken;
 	
+	Gson gson = new Gson();
+	Type strObjMap = new TypeToken<Map<String, Object>>(){}.getType();
 	private boolean run = true;
 
 	public TwitterFeed(OneFeed mgr, Preferences pref) {
@@ -56,20 +58,30 @@ public class TwitterFeed extends Feed implements Runnable {
 		Response streamResponse = streamReq.send();
 		
 		BufferedReader in = new BufferedReader(new InputStreamReader(streamResponse.getStream()));
-		Gson gson = new Gson();
-		Map<String, Object> body = new HashMap<String, Object>();
-		Type strObjMap = new TypeToken<Map<String, Object>>(){}.getType();
 		
 		try {
 			String line = "";
 			while(run && (line = in.readLine()) != null) {
-				if(line.equals("")) continue;
-				sendFeedEvent(line);
+				parseLine(line);
 			}
 			in.close();
 		} catch(IOException ex) {
 			mgr.frontend.error("Error while reading Twitter feed");
 		}
+	}
+	
+	private void parseLine(String lineString) {
+		if(lineString.equals("")) return;
+		Map<String, Object> line = new HashMap<String, Object>();
+		line = gson.fromJson(lineString, strObjMap);
+		
+		for(String s : line.keySet()) {
+			System.out.println(s+":");
+			System.out.println(" - "+line.get(s));
+			if(line.get(s) != null) System.out.println(" - "+line.get(s).getClass());
+		}
+		
+		sendFeedEvent(lineString);
 	}
 	
 	// connects the user to the feed
@@ -114,9 +126,10 @@ public class TwitterFeed extends Feed implements Runnable {
 		Response response = request.send();
 		if(response.getCode() != 200) return false;
 		
-		Gson gson = new Gson();
+		gson = new Gson();
+		strObjMap = new TypeToken<Map<String, Object>>(){}.getType();
+		
 		Map<String, Object> body = new HashMap<String, Object>();
-		Type strObjMap = new TypeToken<Map<String, Object>>(){}.getType();
 		body = gson.fromJson(response.getBody(), strObjMap);
 		
 		mgr.frontend.log("@"+body.get("screen_name")+" logged in to Twitter");
