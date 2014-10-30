@@ -57,6 +57,8 @@ public class OneFeed {
 					feed.kill();
 				}
 				try {
+					prefs.sync();
+				//	printPrefs();
 					prefs.flush();
 				} catch (BackingStoreException bse) {
 					frontend.error("Couldn't save preferences.");
@@ -137,5 +139,23 @@ public class OneFeed {
 	
 	public String encrypt(String in) {
 		return in;
+	}
+	
+	private void printPrefs() {
+		printPrefs("", prefs);
+	}
+	private void printPrefs(String sofar, Preferences cnode) {
+		try {
+			System.out.println(sofar+"/"+cnode.name());
+			for(String k : cnode.keys()) {
+				System.out.println(" - "+k+" : "+cnode.get(k, "-fuck-"));
+			}
+			for(String c : cnode.childrenNames()) {
+				Preferences p = cnode.node(sofar+"/"+cnode.name()+"/"+c);
+				printPrefs(sofar+"/"+cnode.name(), p);
+			}
+		} catch(Exception ex) {
+			System.out.println("Damn");
+		}
 	}
 }

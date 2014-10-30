@@ -1,4 +1,6 @@
-import java.io.Console;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Set;
 
@@ -33,9 +35,19 @@ public class OneFeedFrontendCli extends OneFeedFrontend {
     
     public String[] prompt(String[] prompts) {
     	String[] outs = prompts;
-    	Console c = System.console();
-    	for(int i = 0; i<prompts.length; i++) {
-    		outs[i] = c.readLine(prompts[i]);
+    	BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
+    	for(int i = 0; i<prompts.length;) {
+    		System.out.print(getTime()+prompts[i]+": ");
+    		String instr = "";
+    		try {
+    			instr = in.readLine();
+    		} catch(IOException ex) {
+    			error(ex, "Prompt failed");
+    		}
+    		if(instr != null && !instr.equals("")) {
+    			outs[i] = instr;
+    			i++;
+    		}
     	}
     	return outs;
     }

@@ -3,7 +3,12 @@
 
 	<target name="make">
 		<mkdir dir="bin" />
-		<javac srcdir="src" destdir="bin" classpath="src" includeantruntime="false"/>
+		<javac srcdir="src" destdir="bin" classpath="src" includeantruntime="false">
+			<classpath>
+				<pathelement path="lib/commons-codec.jar"/>
+				<pathelement path="lib/scribe-1.3.7.jar"/>
+			</classpath>
+		</javac>
 	</target>
 
 	<target name="clean">
@@ -11,9 +16,11 @@
 	</target>
 
 	<target name="run" depends="make">
-		<java classname="OneFeed">
+		<java classname="OneFeed" fork="true">
 			<classpath>
 				<pathelement location="bin" />
+				<pathelement path="lib/commons-codec.jar"/>
+				<pathelement path="lib/scribe-1.3.7.jar"/>
 			</classpath>
 		</java>
 	</target>
