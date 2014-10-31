@@ -1,15 +1,20 @@
 import java.awt.Desktop;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.Type;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.prefs.Preferences;
 
 import org.scribe.builder.ServiceBuilder;
-import org.scribe.builder.api.TwitterApi;
+import org.scribe.builder.api.TumblrApi;
 import org.scribe.model.OAuthRequest;
 import org.scribe.model.Response;
 import org.scribe.model.Token;
@@ -20,10 +25,10 @@ import org.scribe.oauth.OAuthService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
-public class TwitterFeed extends Feed implements Runnable {
+public class TumblrFeed extends Feed implements Runnable {
 	
-	private String apikey = "y62sFjps53KzruuOs3oPxjq8d";
-	private String apisecret = "H2yyNcDSDnEddnBg7q0XLGcfQhNEAvjD3OYJDQewwUDz4da3Ti";
+	private String apikey = "vSGPcp43S286hQMhIekwgaUYcAcsoxlwTIaXpD6mpIH2TeGV8M";
+	private String apisecret = "ea4TW4OHMGXvaCBmmDF9okhcS0MDUzizSz8AguucxV9Smlt4bm";
 	
 	private OAuthService oas;
 	private Token accessToken;
@@ -32,7 +37,7 @@ public class TwitterFeed extends Feed implements Runnable {
 	Type strObjMap = new TypeToken<Map<String, Object>>(){}.getType();
 	private boolean run = true;
 
-	public TwitterFeed(OneFeed mgr, Preferences pref) {
+	public TumblrFeed(OneFeed mgr, Preferences pref) {
 		super(mgr, pref);
 	}
 	
@@ -48,12 +53,13 @@ public class TwitterFeed extends Feed implements Runnable {
 	
 	public void run() {
 		if(!userAuth()) {
-			mgr.frontend.error("Could not log in to Twitter; aborting TwitterFeed");
+			mgr.frontend.error("Could not log in to "+getName()+"; feed aborting");
+			return;
 		}
 		
-		OAuthRequest streamReq = new OAuthRequest(Verb.GET, "https://userstream.twitter.com/1.1/user.json");
+		OAuthRequest streamReq = new OAuthRequest(Verb.GET, "https://api.tumblr.com/v2/user/dashboard");
 		streamReq.setConnectionKeepAlive(true);
-		streamReq.addHeader("user-agent", "OneFeed-TwitterFeed");
+		streamReq.addHeader("user-agent", "OneFeed-TumblrFeed");
 		oas.signRequest(accessToken, streamReq);
 		Response streamResponse = streamReq.send();
 		
@@ -66,7 +72,7 @@ public class TwitterFeed extends Feed implements Runnable {
 			}
 			in.close();
 		} catch(IOException ex) {
-			mgr.frontend.error("Error while reading Twitter feed");
+			mgr.frontend.error("Error while reading "+getName()+" feed");
 		}
 	}
 	
@@ -88,9 +94,10 @@ public class TwitterFeed extends Feed implements Runnable {
 	private boolean userAuth() {
 
 		oas = new ServiceBuilder()
-					.provider(TwitterApi.class)
+					.provider(TumblrApi.class)
 					.apiKey(apikey)
 					.apiSecret(apisecret)
+					.callback("http://localhost:32042/")
 					.build();
 		
 		// Get string from prefs
@@ -98,17 +105,59 @@ public class TwitterFeed extends Feed implements Runnable {
 		String tksec = prefs.get("secret", "");
 		
 		if(tk.equals("")) {
-			Token reqToken = oas.getRequestToken();
+			Token reqToken;
+			try {
+				reqToken = oas.getRequestToken();
+			} catch(Exception ex) {
+				mgr.frontend.error("Could not log in to "+getName()+"; probably caused by bad OAuth request");
+				return false;
+			}
 			String authUrl = oas.getAuthorizationUrl(reqToken);
 			try {
 				Desktop.getDesktop().browse(new URL(authUrl).toURI());
 			} catch(Exception ex) {
-				mgr.frontend.error(ex, "could not connect to Twitter");
+				mgr.frontend.error(ex, "could not open browser to connect");
 				return false;
 			}
-			String code = mgr.frontend.prompt(new String[]{"Code"})[0];
-			Verifier v = new Verifier(code);
-			accessToken = oas.getAccessToken(reqToken, v);
+			String req = null;
+			try {
+				ServerSocket sSocket = new ServerSocket(32042);
+				Socket s = sSocket.accept();
+				BufferedReader in = new BufferedReader(new InputStreamReader(s.getInputStream()));
+				String line = "";
+				while((line = in.readLine()) != null && !line.equals("")) {
+					if(req == null) req = line;
+				}
+				
+				BufferedWriter out = new BufferedWriter(
+						new OutputStreamWriter(
+								new BufferedOutputStream(s.getOutputStream())));
+				
+				String body = "<html><head><script>window.open('http://tumblr.com/','_self');</script></head></html>";
+				out.write("HTTP/1.1 200 OK\r\n" +
+						"Content-Type: text/html\r\n" +
+						"Content-Length: "+body.length()+"\r\n\r\n" + body);
+				out.flush();
+				
+				in.close();
+				out.close();
+				s.close();
+				sSocket.close();
+			} catch(Exception ex) { }
+			
+			//convert req to Token
+			if(req == null) return false;
+			
+			try {
+				tk = req.substring(req.indexOf("oauth_token=")+12,req.indexOf("&",req.indexOf("oauth_token=")));
+				tksec = req.substring(req.indexOf("oauth_verifier=")+15,req.indexOf(" ",req.indexOf("oauth_verifier=")));
+			} catch(StringIndexOutOfBoundsException t) {
+				mgr.frontend.error("Error while parsing OAuth HTTP request");
+				return false;
+			}
+			
+			accessToken = oas.getAccessToken(reqToken, new Verifier(tksec));
+			
 			prefs.put("token", accessToken.getToken());
 			prefs.put("secret", accessToken.getSecret());
 			try {
@@ -119,13 +168,15 @@ public class TwitterFeed extends Feed implements Runnable {
 		} else {
 			accessToken = new Token(tk, tksec);
 		}
-		System.out.println(tk + " --- --- --- --- --- "+tksec);
 		
-		OAuthRequest request = new OAuthRequest(Verb.GET, "https://api.twitter.com/1.1/account/verify_credentials.json");
+		OAuthRequest request = new OAuthRequest(Verb.GET, "http://api.tumblr.com/v2/user/info");
 		
 		oas.signRequest(accessToken, request);
 		Response response = request.send();
-		if(response.getCode() != 200) return false;
+		if(response.getCode() != 200) {
+			mgr.frontend.error("Got a "+response.getCode()+" response code...");
+			return false;
+		}
 		
 		gson = new Gson();
 		strObjMap = new TypeToken<Map<String, Object>>(){}.getType();
@@ -133,7 +184,7 @@ public class TwitterFeed extends Feed implements Runnable {
 		Map<String, Object> body = new HashMap<String, Object>();
 		body = gson.fromJson(response.getBody(), strObjMap);
 		
-		mgr.frontend.log("@"+body.get("screen_name")+" logged in to "+getName());
+		mgr.frontend.log("Logged in to "+getName());
 		
 		return true;
 	}
@@ -143,10 +194,10 @@ public class TwitterFeed extends Feed implements Runnable {
 	}
 
 	public String getName() {
-		return "Twitter";
+		return "Tumblr";
 	}
 	public String getSName() {
-		return "Tw";
+		return "Tu";
 	}
 }
 

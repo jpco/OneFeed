@@ -1,5 +1,5 @@
 <project name="OneFeed" default="run">
-	<property name="feed" value="DummyFeed" />
+	<property name="feed" value="TumblrFeed" />
 
 	<target name="make">
 		<mkdir dir="bin" />
