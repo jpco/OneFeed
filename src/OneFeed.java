@@ -15,19 +15,7 @@ public class OneFeed {
 	OneFeedFrontend frontend;
 
     public static void main(String[] args) {
-		if(args.length == 2 && args[0].equals("addfeed")) {
-			OneFeed of = new OneFeed();
-			of.frontend = new OneFeedFrontendCli(of);
-			of.prefs = Preferences.userRoot().node("OneFeed");
-			of.addFeed(args[1]);
-		} else if(args.length == 2 && args[0].equals("rmfeed")) {
-			OneFeed of = new OneFeed();
-			of.frontend = new OneFeedFrontendCli(of);
-			of.prefs = Preferences.userRoot().node("OneFeed");
-			of.rmFeed(args[1]);
-		} else {
-			new OneFeed().init();
-		}
+		new OneFeed().init();
     }
 	private void init() {
         frontend = new OneFeedFrontendCli(this);
@@ -67,23 +55,6 @@ public class OneFeed {
 		}));
 	}
 
-	private void addFeed(String nFeed) {
-		Preferences fPref = prefs.node(nFeed);
-		try {
-			Class.forName(nFeed).getDeclaredMethod("add", OneFeed.class, Preferences.class).invoke(null, this, fPref);
-		} catch (Exception ex) {
-			frontend.error(ex, "Could not perform internal feed initialization");
-		}
-	}
-	private void rmFeed(String dFeed) {
-		try {
-			Preferences kNode = prefs.node(dFeed);
-			kNode.removeNode();
-		} catch(BackingStoreException ex) {
-			frontend.error("Could not remove feed "+dFeed);
-		}
-	}
-
 	// I hate this entire method, holy cow
 	private Feed makeFeedFromString(String name)
 			throws ClassNotFoundException, NoSuchMethodException,
@@ -116,6 +87,9 @@ public class OneFeed {
 	
 	private void loadFeedsFromPrefs() {
 		feeds = new HashSet<Feed>();
+		prefs.node("TwitterFeed");
+		prefs.node("TumblrFeed");
+		
 		try {
 			for(String feedName : prefs.childrenNames()) {
 				try {
