@@ -18,12 +18,12 @@ Still nearly completely non-functional and in-development.
  it'll expand as the implementation gets more sophisticated.
  - `OneFeedFrontend`: an abstract superclass for dealing with display & user interaction.
 
-Right now the only type of Feed (besides the abstract superclass) is a DummyFeed;
-my first goal will be to make some Feeds I can test (Facebook and Tumblr will probably be first to come).
+### Feeds:
+ - `TwitterFeed`: uses Twitter streaming API, actually technically functional for what I want
+ - `TumblrFeed`: uses normal REST API, will be the first Feed I have to set up polling for
 
-###Bugs:
- - Doesn't really do anything yet.
-
+UNFORTUNATELY, Facebook does not allow apps to read the newsfeed *OR* their own notifications
+without review, and specifically says "Desktop apps will not be granted [these] permission[s]".
 
 ###To-do:
  1. create account/login controls & storage
