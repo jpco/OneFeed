@@ -131,13 +131,7 @@ abstract public class Feed implements Runnable {
 	}
 	
 	public void init() {
-		String[] prompts = {"Login", "Password"};
-		String[] loginInfo = mgr.frontend.prompt(prompts);
-		while(loginInfo.length != 2) {
-			loginInfo = mgr.frontend.prompt(prompts);
-		}
-		prefs.put("login", loginInfo[0]);
-		prefs.put("pw", mgr.encrypt(loginInfo[1]));
+		prefs.put("TESTING VAL", getName());
 	}
 }
 

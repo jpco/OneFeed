@@ -38,6 +38,7 @@ public class TwitterFeed extends Feed implements Runnable {
 		try {
 			String line = "";
 			while(run && (line = in.readLine()) != null) {
+				if(line.equals("")) continue;
 				sendFeedEvent(line);
 			}
 			in.close();

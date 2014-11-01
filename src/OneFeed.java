@@ -26,7 +26,6 @@ public class OneFeed {
 		rfeeds = Collections.unmodifiableSet(feeds);
 		elist = new LinkedList<FeedEvent>();
 
-		// load preferences
 		prefs = Preferences.userRoot().node("OneFeed");
 		loadFeedsFromPrefs();
 
@@ -87,13 +86,12 @@ public class OneFeed {
 	
 	private void loadFeedsFromPrefs() {
 		feeds = new HashSet<Feed>();
-		prefs.node("TwitterFeed");
-		prefs.node("TumblrFeed");
 		
 		try {
 			for(String feedName : prefs.childrenNames()) {
 				try {
-					feeds.add(makeFeedFromString(feedName));
+					Feed f = makeFeedFromString(feedName);
+					feeds.add(f);
                     frontend.log("Added feed "+feedName);
                 } catch (ClassNotFoundException ex) {
                     frontend.error(ex, "No such feed "+feedName);
@@ -116,9 +114,9 @@ public class OneFeed {
 	}
 	
 	private void printPrefs() {
-		printPrefs("", prefs);
+		OneFeed.printPrefs("", prefs);
 	}
-	private void printPrefs(String sofar, Preferences cnode) {
+	private static void printPrefs(String sofar, Preferences cnode) {
 		try {
 			System.out.println(sofar+"/"+cnode.name());
 			for(String k : cnode.keys()) {
