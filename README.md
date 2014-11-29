@@ -12,7 +12,7 @@ Still nearly completely non-functional and in-development.
 ### Components:
 Primary components:
  - `OneFeed`: the main logical center of the application.
- - `Feed`: an abstract class defining the basic behavior of a feed. 
+ - `Feed`: an abstract class defining the basic behavior of a feed.
  - `FeedEvent`: the feed event a Feed sends to the OneFeed. Currently very basic...will probably
  	end up being/holding a JSON-based map structure.
  - `OneFeedFrontend`: an abstract superclass for dealing with display & user interaction.
@@ -27,7 +27,6 @@ without review, and specifically says "Desktop apps will not be granted [these] 
 ###To-do:
  - encrypted prefs, for better security (obviously!)
  - refactor into MVC (with just console view for now) to have a real design pattern to build on
- - finish JSON parsing
  - finish Tumblr feed (loop within feed fetching posts / notifications)
  - continue adding feeds
  - prototype GUI view, so it's ~flashier~

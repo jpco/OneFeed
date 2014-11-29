@@ -23,7 +23,7 @@ public class TumblrFeed extends Feed implements Runnable {
 	
 	public void run() {
 		if(!userAuth()) {
-			mgr.frontend.error("Could not log in to "+getName()+"; aborting feed");
+			mgr.view.error("Could not log in to "+getName()+"; aborting feed");
 			return;
 		}
 		
@@ -42,7 +42,7 @@ public class TumblrFeed extends Feed implements Runnable {
 			}
 			in.close();
 		} catch(IOException ex) {
-			mgr.frontend.error("Error while reading "+getName()+" feed");
+			mgr.view.error("Error while reading "+getName()+" feed");
 		}
 	}
 

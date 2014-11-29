@@ -1,15 +1,16 @@
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.Calendar;
 import java.util.Set;
 
-public class OneFeedFrontendCli extends OneFeedFrontend {
-    public OneFeedFrontendCli(OneFeed m) {
+public class OneFeedCliView extends OneFeedView {
+	OneFeedController ctrl;
+    public OneFeedCliView(OneFeed m) {
         super(m);
     }
 
-    public void init() { }
+    public void run() {
+    	ctrl = new OneFeedCliController(mgr);
+    	ctrl.init();
+    }
     public void destroy() { }
 
     public void error(Exception ex, String str) {
@@ -31,25 +32,6 @@ public class OneFeedFrontendCli extends OneFeedFrontend {
     public void getFeedEvent(FeedEvent fe) {
         System.out.println(getTime()+"EVENT: "+fe.getSource().getSName()
                 +": "+fe.getString());
-    }
-    
-    public String[] prompt(String[] prompts) {
-    	String[] outs = prompts;
-    	BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
-    	for(int i = 0; i<prompts.length;) {
-    		System.out.print(getTime()+prompts[i]+": ");
-    		String instr = "";
-    		try {
-    			instr = in.readLine();
-    		} catch(IOException ex) {
-    			error(ex, "Prompt failed");
-    		}
-    		if(instr != null && !instr.equals("")) {
-    			outs[i] = instr;
-    			i++;
-    		}
-    	}
-    	return outs;
     }
 
     private String getTime() {
