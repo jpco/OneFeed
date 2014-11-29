@@ -15,10 +15,14 @@ public class JsonTree {
 	public static void main(String[] args) {
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(new File("poo.txt")));
-			String poo = in.readLine();
-			JsonTree t = JsonTree.parse(poo);
-		} catch(IOException ex) { 
-			System.out.println("Wow nothing's going for me");
+			String input = "";
+			String lineIn = "";
+			while((lineIn = in.readLine()) != null) input += lineIn;
+			JsonTree t = JsonTree.parse(input);
+			in.close();
+			System.out.println(t);
+		} catch(IOException ex) {
+			System.out.println("Whoops.");
 			ex.printStackTrace();
 		}
 	}
@@ -54,13 +58,11 @@ public class JsonTree {
 		JsonTree tree = new JsonTree(new HashMap<String, Object>());
 		
 		while(!p.atEnd() && p.charPeek() != '}') {
-			p.charNext(); // for '{' or ','
+			p.charNext(); // eat '{' or ','
 			
 			String key = parseJsonKey(p);
-//			System.out.println("parse key = "+key);
 			
 			Object value = parseJsonObj(p);
-//			System.out.println("parse obj = "+value);
 			
 			tree.elems.put(key, value);
 			p.read(Content.WHITESPACE);
@@ -69,11 +71,12 @@ public class JsonTree {
 		return tree;
 	}
 	private static String parseJsonKey(Parser p) {
+		
 		p.read(Content.WHITESPACE); // eat whitespace
 		p.charNext(); // for first " in key
 		String key = p.read(Content.UNTIL_ENDQUOTE); // key!
 		p.read(Content.UNTIL_COLON);
-		p.charNext(); // finish up key
+		p.charNext(); // eat ':', finish up key
 		
 		return key;
 	}
@@ -85,13 +88,13 @@ public class JsonTree {
 			value = JsonTree.parse(p);
 		} else if(t == '[') {			// Array
 			List<Object> li = new ArrayList<Object>();
-
 			while(!p.atEnd() && p.charPeek() != ']') {
 				p.charNext();				// either a '[' or a ','
 				p.read(Content.WHITESPACE);
 				li.add(parseJsonObj(p));
 				p.read(Content.WHITESPACE);
 			}
+			p.charNext(); // eat ']'
 			value = li;
 		} else {					// Easy type: int, bool, string, null
 			if(p.charPeek() == '"') { // string
@@ -114,6 +117,21 @@ public class JsonTree {
 			}
 		}
 		return value;
+	}
+	
+	public String toString() {
+		StringBuffer output = new StringBuffer();
+		output.append("{\n");
+		for(String key : elems.keySet()) {
+			output.append(key + ": ");
+			if(typeof(key).equals("String")) {
+				output.append("\""+elems.get(key) + "\" (type String)\n");
+			} else {
+				output.append(elems.get(key) + " (type " + typeof(key) + ")\n");
+			}
+		}
+		output.append("}");
+		return output.toString();
 	}
 }
 

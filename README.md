@@ -26,7 +26,8 @@ without review, and specifically says "Desktop apps will not be granted [these] 
 
 ###To-do:
  - encrypted prefs, for better security (obviously!)
- - JSON parsing and a system for unifying different JSON syntaxes into one OneFeedFrontend-readable
-	one.
- - graphical support! I want things to be mainly frontend-independent, so
- people can have lots of different frontend types, from CLI to web interface to GTK+ application.
+ - refactor into MVC (with just console view for now) to have a real design pattern to build on
+ - finish JSON parsing
+ - finish Tumblr feed (loop within feed fetching posts / notifications)
+ - continue adding feeds
+ - prototype GUI view, so it's ~flashier~
