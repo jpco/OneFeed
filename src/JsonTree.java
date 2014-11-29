@@ -12,21 +12,6 @@ public class JsonTree {
 	
 	private final Map<String, Object> elems;
 	
-	public static void main(String[] args) {
-		try {
-			BufferedReader in = new BufferedReader(new FileReader(new File("poo.txt")));
-			String input = "";
-			String lineIn = "";
-			while((lineIn = in.readLine()) != null) input += lineIn;
-			JsonTree t = JsonTree.parse(input);
-			in.close();
-			System.out.println(t);
-		} catch(IOException ex) {
-			System.out.println("Whoops.");
-			ex.printStackTrace();
-		}
-	}
-	
 	public boolean contains(String key) {
 		return (elems.containsKey(key));
 	}
