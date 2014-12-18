@@ -8,7 +8,8 @@ An experiment in unifying social media feeds. Made to practice:
 ### Components:
 Primary components:
  - OneFeed: MVC model, also the board for the internal blackboard. Starts Feeds & generally coordinates.
- - OneFeedView: MVC view, 
+ - OneFeedView: MVC view, the usual.
+ - OneFeedController: 
 
 ### Feeds:
  - DummyFeed: 

@@ -2,16 +2,21 @@
  - OneFeed
  - OneFeedView (interface)
  - OneFeedController (interface)
- - Feed (abstract class)
 
 ### util.*
  - FeedEvent
+ - FeedListener
  - JsonTree
- - FeedMV (?)
+ - FeedVC (????)
  - EncryptedPreferences (!!!)
 
 ### feed.*
-**should probably make a real inheritance tree, there will be a lot of repeated code, but I don't know how it's gonna work!**
+**should probably make a real inheritance tree, there will be a lot of repeated code, but I still don't know how it's gonna work!**
+ - Feed (abstract class)
  - DummyFeed
  - TumblrFeed
  - TwitterFeed
+
+### prefs file: (remember dependency injection bit from class?!)
+ - what feeds to use
+ - what view/controller to use
