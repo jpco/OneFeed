@@ -1,3 +1,5 @@
+package old;
+
 import java.util.EventObject;
 
 public class FeedEvent extends EventObject {

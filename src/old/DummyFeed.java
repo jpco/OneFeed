@@ -1,3 +1,5 @@
+package old;
+
 import java.util.prefs.Preferences;
 
 public class DummyFeed extends Feed {

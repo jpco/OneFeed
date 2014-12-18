@@ -1,3 +1,4 @@
+package old;
 
 public abstract class OneFeedController {
 	OneFeed m;
